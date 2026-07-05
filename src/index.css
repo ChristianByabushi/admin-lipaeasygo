@@ -1,0 +1,333 @@
+/* ══════════════════════════════════════════════════════════════
+   LipaEasyGo Admin — CSS global (antd gère la majorité du style)
+   Ne contient que : reset minimal, variables CSS résiduelles,
+   classes utilitaires, responsive et styles spécifiques non couverts par antd.
+   ══════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Polices ──────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #F8FAFC;
+}
+
+/* ── Scrollbar fine ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar         { width: 6px; height: 6px; }
+::-webkit-scrollbar-track   { background: transparent; }
+::-webkit-scrollbar-thumb   { background: #CBD5E1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ── Variables CSS (utilisées dans le code legacy) ────────────────────────── */
+:root {
+  --primary:          #E01E37;
+  --primary-light:    #FFEAEB;
+  --primary-dark:     #B01025;
+  --secondary:        #0F62FE;
+  --secondary-light:  #EDF5FF;
+  --secondary-dark:   #0043CE;
+  --success:          #10B981;
+  --success-light:    #E6FBF2;
+  --warning:          #F59E0B;
+  --warning-light:    #FEF7E6;
+  --error:            #EF4444;
+  --error-light:      #FEEAEA;
+  --info:             #0F62FE;
+  --gray-50:  #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-300: #CBD5E1;
+  --gray-400: #94A3B8;
+  --gray-500: #64748B;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1E293B;
+  --gray-900: #0F172A;
+  --radius:     10px;
+  --radius-lg:  14px;
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 14px rgba(15,23,42,.06);
+  --shadow-lg:  0 12px 28px rgba(15,23,42,.08);
+}
+
+/* ── Antd overrides globaux ──────────────────────────────────────────────── */
+
+/* ── Boutons : hover prononcé sur tous les types ────────────────────────── */
+.ant-btn {
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Primary */
+.ant-btn-primary:not(:disabled):hover {
+  filter: brightness(1.12) !important;
+  box-shadow: 0 4px 12px rgba(15,98,254,0.30) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Default / outline */
+.ant-btn-default:not(:disabled):hover {
+  border-color: #0F62FE !important;
+  color: #0F62FE !important;
+  box-shadow: 0 2px 8px rgba(15,98,254,0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Danger */
+.ant-btn-primary.ant-btn-dangerous:not(:disabled):hover {
+  filter: brightness(1.1) !important;
+  box-shadow: 0 4px 12px rgba(239,68,68,0.30) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Text / ghost */
+.ant-btn-text:not(:disabled):hover,
+.ant-btn-link:not(:disabled):hover {
+  background: rgba(15,98,254,0.07) !important;
+  color: #0F62FE !important;
+}
+
+/* Small buttons — décalage réduit */
+.ant-btn-sm:not(:disabled):hover {
+  transform: translateY(-1px) !important;
+}
+
+/* Active press */
+.ant-btn:not(:disabled):active {
+  transform: translateY(0) scale(0.98) !important;
+  filter: brightness(0.95) !important;
+}
+
+/* Boutons custom (wrappers) — déjà dans le wrapper Button mais renforcé ici */
+button:not(.ant-btn):not(:disabled):hover {
+  opacity: 0.88;
+}
+
+/* Sidebar sombre — fond #0F1923 */
+.ant-layout-sider,
+.ant-menu-dark {
+  background: #0F1923 !important;
+}
+.ant-menu-dark .ant-menu-item-selected {
+  background: rgba(255,255,255,.08) !important;
+}
+.ant-menu-dark .ant-menu-item-selected .ant-menu-title-content {
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+.ant-menu-dark.ant-menu-inline .ant-menu-item::after {
+  border-right: 3px solid #0F62FE !important;
+}
+
+/* Sider trigger */
+.ant-layout-sider-trigger {
+  background: rgba(255,255,255,.04) !important;
+  color: rgba(255,255,255,.4) !important;
+  border-top: 1px solid rgba(255,255,255,.06) !important;
+}
+
+/* Table — header uppercase compact */
+.ant-table-thead > tr > th {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-weight: 600 !important;
+  color: #64748B !important;
+}
+
+/* Card — border-radius uniforme */
+.ant-card {
+  border-radius: 12px !important;
+}
+
+/* Tag arrondi */
+.ant-tag {
+  border-radius: 999px !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+/* Input focus — couleur bleue IBM */
+.ant-input:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: #0F62FE !important;
+  box-shadow: 0 0 0 2px rgba(15,98,254,.12) !important;
+}
+
+/* Select focus */
+.ant-select-focused .ant-select-selector {
+  border-color: #0F62FE !important;
+  box-shadow: 0 0 0 2px rgba(15,98,254,.12) !important;
+}
+
+/* Modal backdrop blur */
+.ant-modal-mask {
+  backdrop-filter: blur(2px) !important;
+}
+
+/* ── Layout responsive ──────────────────────────────────────────────────── */
+
+/* Grille auto-fill pour les stat cards */
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+/* Two-col dashboard */
+.dash-two-col {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* KYC panel */
+.kyc-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Support panel */
+.support-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 20px;
+  height: calc(100vh - 120px);
+}
+
+/* Login — fond plein écran, card centrée */
+/* Les styles inline dans Login.tsx gèrent tout — on garde juste le responsive */
+@media (max-width: 480px) {
+  /* Card login prend toute la largeur sur petit écran */
+  .login-grid { display: block; }
+}
+
+/* ── Mobile menu button (caché par défaut) ──────────────────────────────── */
+.mobile-menu-btn {
+  display: none !important;
+}
+
+/* Desktop sidebar visible, drawer hidden */
+.desktop-sidebar {
+  display: block;
+}
+.mobile-sidebar-drawer {
+  display: none;
+}
+
+/* ── Responsive breakpoints ─────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .dash-two-col   { grid-template-columns: 1fr; }
+  .kyc-layout     { grid-template-columns: 1fr; }
+  .support-layout { height: calc(100vh - 100px); }
+  .grid-auto-fill { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  /* Afficher le hamburger */
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+
+  /* Cacher le sidebar desktop (ant-layout-sider) */
+  .desktop-sidebar {
+    display: none !important;
+  }
+
+  /* Afficher la version drawer */
+  .mobile-sidebar-drawer {
+    display: block;
+  }
+
+  /* Cacher nom/rôle dans le header */
+  .header-user-name {
+    display: none;
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+
+  /* Login → toujours centré */
+
+  /* Content padding réduit */
+  .ant-layout-content {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-auto-fill {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ── Utilitaires d'animation ────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Accessibilité ──────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ── Tooltip pending agent-terrain ──────────────────────────────────────── */
+.pending-tooltip-wrap { cursor: help; }
+
+.pending-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.55;
+  padding: 10px 14px;
+  border-radius: 10px;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 200;
+  pointer-events: none;
+  min-width: 240px;
+  white-space: normal;
+  text-align: left;
+}
+
+/* Arrow */
+.pending-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1e293b;
+}
+
+.pending-tooltip-wrap:hover .pending-tooltip {
+  display: block;
+}

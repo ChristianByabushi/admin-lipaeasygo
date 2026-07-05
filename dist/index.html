@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!--
+      Content Security Policy.
+      connect-src includes:
+        - 'self'              → same origin (catches Vite proxy on port 5173)
+        - localhost:3000      → nginx gateway (all services behind one port)
+        - localhost:3001-3009 → individual service ports (direct debug access)
+        - production domains  → deployed API
+      Notes:
+        - X-Frame-Options and frame-ancestors MUST be sent as HTTP headers,
+          not meta tags. The vite.config.ts and nginx gateway handle that.
+        - Remove 'unsafe-inline' from script-src before production and
+          switch to a nonce-based CSP.
+    -->
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self' 'unsafe-inline';
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+               font-src 'self' https://fonts.gstatic.com;
+               img-src 'self' data: blob:;
+               connect-src 'self'
+                 http://localhost:3000
+                 http://localhost:3001 http://localhost:3002 http://localhost:3003
+                 http://localhost:3004 http://localhost:3005 http://localhost:3006
+                 http://localhost:3007 http://localhost:3008 http://localhost:3009
+                 https://api.lipaeasygo.com https://admin-api.lipaeasygo.com;" />
+
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <!--
+      X-Frame-Options cannot be set via a meta tag — browsers ignore it.
+      It is set as an HTTP header in vite.config.ts (dev) and nginx (prod).
+    -->
+
+    <title>LipaEasyGo — Admin Portal</title>
+
+    <!-- Plus Jakarta Sans — clean geometric sans-serif, fintech-appropriate -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/assets/index-LJIFswY2.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C3UtQ8xW.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
