@@ -20,7 +20,7 @@ interface ServiceResult {
   checkedAt: Date | null
 }
 
-const BASE = '/api/v1'
+const BASE = (import.meta.env.VITE_API_URL ?? '/api/v1').replace(/\/$/, '')
 const SLOW_MS = 800
 
 /**
