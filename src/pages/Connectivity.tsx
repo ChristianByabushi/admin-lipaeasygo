@@ -57,7 +57,7 @@ async function checkService(
       : err?.code === 'ECONNABORTED'
       ? 'Timeout (> 5 s) — service surchargé ou arrêté'
       : err?.code === 'ERR_NETWORK' || err?.message?.includes('Network')
-      ? 'Erreur réseau — Docker Desktop démarré ?'
+      ? `Erreur réseau (${err?.code ?? err?.message}) — CORS ou serveur inaccessible`
       : (err?.message ?? 'Erreur inconnue')
     return { ...svc, status: 'error', latency, error: msg, checkedAt: new Date() }
   }

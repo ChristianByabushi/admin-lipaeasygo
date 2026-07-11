@@ -41,9 +41,14 @@ export default function UserDetail() {
   })
 
   // ── Modal state ───────────────────────────────────────────────────────────
-  type ModalType = 'edit_info' | 'reset_pin' | 'set_kyc' | null
-  const [modal, setModal]   = useState<ModalType>(null)
+  type ModalType = 'edit_info' | 'reset_pin' | 'set_kyc' | 'deposit' | null
+  const [modal, setModal]       = useState<ModalType>(null)
   const [modalErr, setModalErr] = useState('')
+  const [modalOk, setModalOk]   = useState('')
+
+  // Deposit form
+  const [depositForm, setDepositForm] = useState({ amount: '', currency: 'CDF', reference: '' })
+  const [depositLoading, setDepositLoading] = useState(false)
 
   // Edit info form
   const [editForm, setEditForm] = useState({
@@ -226,32 +231,13 @@ export default function UserDetail() {
 
               {/* Cash deposit */}
               <Button variant="primary" style={{ width: '100%', justifyContent: 'center' }}
-                onClick={async () => {
-                  const amountStr = window.prompt('Montant à déposer (en CDF) :')
-                  if (!amountStr || isNaN(Number(amountStr)) || Number(amountStr) <= 0) return
-                  const ref = window.prompt('Référence / bordereau (facultatif) :') ?? ''
-                  if (window.confirm(`Créditer ${Number(amountStr).toLocaleString()} CDF sur le compte de ${data.first_name} ${data.last_name} ?`)) {
-                    try {
-                      const res = await api.post(`/finance/admin/deposit`, null, {
-                        params: {
-                          user_phone: data.phone_number,
-                          amount: amountStr,
-                          currency: 'CDF',
-                          reference: ref || undefined,
-                        },
-                      })
-                      const d2 = res.data.data
-                      const msg = d2.tier_upgraded
-                        ? `Dépôt effectué. Solde : ${d2.balance_after} CDF. Compte mis à niveau au Tier ${d2.kyc_tier_after}.`
-                        : `Dépôt effectué. Nouveau solde : ${d2.balance_after} CDF.`
-                      window.alert(msg)
-                      qc.invalidateQueries({ queryKey: ['user', id] })
-                    } catch (e: any) {
-                      window.alert('Erreur : ' + (e?.response?.data?.error?.message ?? e.message))
-                    }
-                  }
+                onClick={() => {
+                  setDepositForm({ amount: '', currency: 'CDF', reference: '' })
+                  setModalErr('')
+                  setModalOk('')
+                  setModal('deposit')
                 }}>
-                Dépôt en espèces
+                💵 Dépôt en espèces
               </Button>
 
               <Link to={`/kyc?user=${id}`}>
@@ -515,6 +501,137 @@ export default function UserDetail() {
               { value: '2', label: 'Tier 2 — Vérification complète' },
             ]} />
         </Field>
+      </Modal>
+
+      {/* ── Modal : Dépôt en espèces ───────────────────────────────────────── */}
+      <Modal
+        open={modal === 'deposit'}
+        onClose={closeModal}
+        title="Dépôt en espèces"
+        width={480}
+        footer={
+          <>
+            <Button variant="ghost" onClick={closeModal}>Annuler</Button>
+            <Button
+              variant="primary"
+              loading={depositLoading}
+              disabled={!depositForm.amount || Number(depositForm.amount) <= 0}
+              onClick={async () => {
+                setModalErr('')
+                setModalOk('')
+                setDepositLoading(true)
+                try {
+                  const res = await api.post(`/finance/admin/deposit`, null, {
+                    params: {
+                      user_phone: data.phone_number,
+                      amount:     depositForm.amount,
+                      currency:   depositForm.currency,
+                      reference:  depositForm.reference || undefined,
+                    },
+                  })
+                  const d2 = res.data.data
+                  const msg = d2.tier_upgraded
+                    ? `Dépôt effectué. Nouveau solde : ${fmtMoney(d2.balance_after, depositForm.currency)}. Compte mis à niveau au Tier ${d2.kyc_tier_after}.`
+                    : `Dépôt effectué. Nouveau solde : ${fmtMoney(d2.balance_after, depositForm.currency)}.`
+                  setModalOk(msg)
+                  qc.invalidateQueries({ queryKey: ['user', id] })
+                } catch (e: any) {
+                  setModalErr(e?.response?.data?.error?.message ?? 'Erreur lors du dépôt')
+                } finally {
+                  setDepositLoading(false)
+                }
+              }}
+            >
+              Confirmer le dépôt
+            </Button>
+          </>
+        }
+      >
+        {modalErr && <Alert type="error" message={modalErr} />}
+        {modalOk  && <Alert type="success" message={modalOk} />}
+
+        {/* Récapitulatif bénéficiaire */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '12px 16px', borderRadius: 10, marginBottom: 20,
+          background: 'var(--gray-50)', border: '1px solid var(--gray-200)',
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: '50%',
+            background: 'var(--primary-light)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 800, fontSize: 16, color: 'var(--primary)', flexShrink: 0,
+          }}>
+            {(data.first_name?.[0] ?? '').toUpperCase()}{(data.last_name?.[0] ?? '').toUpperCase()}
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--gray-900)' }}>
+              {data.first_name} {data.last_name}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--gray-500)' }}>{data.phone_number}</div>
+          </div>
+          <StatusBadge status={data.kyc_status} />
+        </div>
+
+        {/* Devise */}
+        <Field label="Devise">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {(['CDF', 'USD'] as const).map((cur) => (
+              <button
+                key={cur}
+                type="button"
+                onClick={() => setDepositForm({ ...depositForm, currency: cur, amount: '' })}
+                style={{
+                  padding: '12px', borderRadius: 10, cursor: 'pointer',
+                  border: `2px solid ${depositForm.currency === cur ? 'var(--primary)' : 'var(--gray-200)'}`,
+                  background: depositForm.currency === cur ? 'var(--primary-light)' : '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  fontWeight: 700, fontSize: 15,
+                  color: depositForm.currency === cur ? 'var(--primary)' : 'var(--gray-600)',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {cur === 'CDF' ? '🇨🇩' : '🇺🇸'} {cur}
+              </button>
+            ))}
+          </div>
+        </Field>
+
+        {/* Montant */}
+        <Field label={`Montant (${depositForm.currency})`} required>
+          <Input
+            type="number"
+            min="1"
+            value={depositForm.amount}
+            onChange={(e) => setDepositForm({ ...depositForm, amount: e.target.value })}
+            placeholder={depositForm.currency === 'CDF' ? 'Ex: 50000' : 'Ex: 20'}
+            style={{ fontSize: 18, fontWeight: 700, textAlign: 'right' }}
+          />
+          {depositForm.amount && Number(depositForm.amount) > 0 && (
+            <div style={{ marginTop: 4, fontSize: 13, color: 'var(--primary)', fontWeight: 600, textAlign: 'right' }}>
+              = {fmtMoney(depositForm.amount, depositForm.currency)}
+            </div>
+          )}
+        </Field>
+
+        {/* Référence */}
+        <Field label="Référence / numéro de bordereau" hint="Optionnel — pour la traçabilité">
+          <Input
+            value={depositForm.reference}
+            onChange={(e) => setDepositForm({ ...depositForm, reference: e.target.value })}
+            placeholder="Ex: REC-2025-0042"
+          />
+        </Field>
+
+        {/* Note notification */}
+        <div style={{
+          display: 'flex', gap: 8, padding: '10px 12px',
+          background: '#F0FDF4', border: '1px solid #BBF7D0',
+          borderRadius: 8, fontSize: 12, color: '#166534', marginTop: 4,
+        }}>
+          <span>📱</span>
+          <span>Une notification SMS sera envoyée automatiquement au client après le dépôt.</span>
+        </div>
       </Modal>
 
     </div>

@@ -360,7 +360,7 @@ export default function Agents() {
   const canManage = adminUser ? can(adminUser.role, 'agents.approve') : false
 
   const [search, setSearch]         = useState('')
-  const [statusFilter, setStatus]   = useState('')
+  const [statusFilter, setStatus]   = useState('pending')
   const [tierFilter, setTier]       = useState('')
   const [selected, setSelected]     = useState<Agent | null>(null)
   const [approveTarget, setApprove] = useState<Agent | null>(null)
