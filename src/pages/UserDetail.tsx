@@ -507,9 +507,15 @@ export default function UserDetail() {
       <Modal
         open={modal === 'deposit'}
         onClose={closeModal}
-        title="Dépôt en espèces"
+        title={modalOk ? '✅ Dépôt effectué' : 'Dépôt en espèces'}
         width={480}
         footer={
+          modalOk ? (
+            // Succès — bouton fermer uniquement
+            <Button variant="primary" onClick={closeModal} style={{ width: '100%' }}>
+              Fermer
+            </Button>
+          ) : (
           <>
             <Button variant="ghost" onClick={closeModal}>Annuler</Button>
             <Button
@@ -531,8 +537,8 @@ export default function UserDetail() {
                   })
                   const d2 = res.data.data
                   const msg = d2.tier_upgraded
-                    ? `Dépôt effectué. Nouveau solde : ${fmtMoney(d2.balance_after, depositForm.currency)}. Compte mis à niveau au Tier ${d2.kyc_tier_after}.`
-                    : `Dépôt effectué. Nouveau solde : ${fmtMoney(d2.balance_after, depositForm.currency)}.`
+                    ? `Dépôt de ${fmtMoney(depositForm.amount, depositForm.currency)} effectué. Nouveau solde : ${fmtMoney(d2.balance_after, depositForm.currency)}. Compte mis à niveau au Tier ${d2.kyc_tier_after}.`
+                    : `Dépôt de ${fmtMoney(depositForm.amount, depositForm.currency)} effectué avec succès. Nouveau solde : ${fmtMoney(d2.balance_after, depositForm.currency)}.`
                   setModalOk(msg)
                   qc.invalidateQueries({ queryKey: ['user', id] })
                 } catch (e: any) {
@@ -545,10 +551,29 @@ export default function UserDetail() {
               Confirmer le dépôt
             </Button>
           </>
+          )
         }
       >
-        {modalErr && <Alert type="error" message={modalErr} />}
-        {modalOk  && <Alert type="success" message={modalOk} />}
+        {modalOk ? (
+          // Vue succès — claire et finale
+          <div style={{ textAlign: 'center', padding: '24px 0' }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%',
+              background: '#DCFCE7', margin: '0 auto 16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ fontSize: 36 }}>✅</span>
+            </div>
+            <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--gray-900)', marginBottom: 8 }}>
+              {modalOk}
+            </p>
+            <p style={{ fontSize: 13, color: 'var(--gray-500)' }}>
+              📱 Une notification SMS a été envoyée au client.
+            </p>
+          </div>
+        ) : (
+          <>
+            {modalErr && <Alert type="error" message={modalErr} />}
 
         {/* Récapitulatif bénéficiaire */}
         <div style={{
@@ -632,6 +657,8 @@ export default function UserDetail() {
           <span>📱</span>
           <span>Une notification SMS sera envoyée automatiquement au client après le dépôt.</span>
         </div>
+          </>
+        )}
       </Modal>
 
     </div>
